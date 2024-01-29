@@ -7,7 +7,7 @@ app.use(express.json());
 
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://basic-crud-revise:xOU9eXJ04o6ARABT@cluster0.nebbavw.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://basic-crud-revise:xOU9eXJ04o6ARABT@cluster0.nebbavw.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -25,19 +25,24 @@ async function run() {
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
-
+        const db = client.db('basicCRUD');
+        // Reference the "people" collection in the specified database
+        const col = db.collection('texts');
 
         app.get('/', (req, res) => {
             res.send('Hello World!');
         });
 
-        app.get('/texts', (req, res) => {
-            res.send("data wil be shown here");
+        app.get('/texts', async (req, res) => {
+            const cursor = col.find();
+            const result = await cursor.toArray();
+            res.send(result);
         })
 
-        app.post('/texts', (req, res) => {
+        app.post('/texts', async (req, res) => {
             const data = req.body;
-            res.send(data)
+            const result = await col.insertOne(data);
+            res.send(result);
         })
 
         app.listen(port, () => {
